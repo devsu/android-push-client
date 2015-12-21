@@ -6,31 +6,46 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
-import com.devsu.library.pushclient.client.PushClient;
+import com.devsu.library.pushclient.prefs.PrefsConstants;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
+import java.io.IOException;
+
+/**
+ * The GCM registration IntentService.
+ */
 public class RegistrationIntentService extends IntentService {
 
+    /**
+     * Log TAG.
+     */
     public static final String TAG = RegistrationIntentService.class.getSimpleName();
 
+    /**
+     * Default constructor.
+     */
     public RegistrationIntentService() {
         super(TAG);
     }
 
+    /**
+     * Generates a new registration ID using InstanceID.
+     * @param intent The intent with the generated registration ID OR the Exception that ocurred.
+     */
     @Override
     public void onHandleIntent(Intent intent) {
+        ResultReceiver receiver = intent.getParcelableExtra(RegistrationResultReceiver.TAG);
+        Bundle bundle = new Bundle();
         try {
-            ResultReceiver receiver = intent.getParcelableExtra(RegistrationResultReceiver.TAG);
-//            RegistrationResultReceiver receiver = (RegistrationResultReceiver) intent.getParcelableExtra(RegistrationResultReceiver.TAG);
-            String gcmId = intent.getStringExtra(PushClient.PREF_GCM_ID);
+            String gcmId = intent.getStringExtra(PrefsConstants.PREF_GCM_ID);
             InstanceID instanceID = InstanceID.getInstance(this);
-            Bundle bundle = new Bundle();
             String regId = instanceID.getToken(gcmId, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-            bundle.putString(PushClient.PREF_REG_ID, regId);
+            bundle.putString(PrefsConstants.PREF_REG_ID, regId);
             receiver.send(Activity.RESULT_OK, bundle);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            bundle.putSerializable(PrefsConstants.REGISTRATION_EXCEPTION, e);
+            receiver.send(Activity.RESULT_CANCELED, bundle);
         }
     }
 }

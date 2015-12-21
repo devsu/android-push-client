@@ -1,30 +1,47 @@
 package com.devsu.library.pushclient.service;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 
 /**
- * Created by rion18 on 17-Dec-15.
+ * The Receiver for the registration IntentService's result.
  */
+@SuppressLint("ParcelCreator")
 public class RegistrationResultReceiver extends ResultReceiver {
 
-    public final static String TAG = RegistrationResultReceiver.class.getSimpleName();
+    /**
+     * Log TAG.
+     */
+    public static final String TAG = RegistrationResultReceiver.class.getSimpleName();
 
+    /**
+     * Internal receiver.
+     */
     private Receiver mReceiver;
 
+    /**
+     * Single param constructor
+     * @param handler The handler.
+     */
     public RegistrationResultReceiver(Handler handler) {
         super(handler);
     }
 
-    public interface Receiver {
-        void onReceiveResult(int resultCode, Bundle resultData);
-    }
-
+    /**
+     * Sets the receiver.
+     * @param receiver The receiver.
+     */
     public void setReceiver(Receiver receiver) {
         mReceiver = receiver;
     }
 
+    /**
+     * Executes the receiver's callback.
+     * @param resultCode The result code.
+     * @param resultData The result extras.
+     */
     @Override
     public void onReceiveResult(int resultCode, Bundle resultData) {
         if (mReceiver != null) {
@@ -32,4 +49,10 @@ public class RegistrationResultReceiver extends ResultReceiver {
         }
     }
 
+    /**
+     * Interface that allows receiving an IntentService.
+     */
+    public interface Receiver {
+        void onReceiveResult(int resultCode, Bundle resultData);
+    }
 }
