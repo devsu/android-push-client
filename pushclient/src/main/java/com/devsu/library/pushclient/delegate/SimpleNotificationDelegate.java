@@ -145,7 +145,7 @@ public class SimpleNotificationDelegate implements PushDelegate {
      * Retrieves the contentIntent for the default activity.
      * @param context The context.
      * @param currentTimeStamp The time of Notification.
-     * @return
+     * @return The content intent.
      */
     private PendingIntent getContentIntent(Context context, int currentTimeStamp) {
         Intent intent = new Intent();

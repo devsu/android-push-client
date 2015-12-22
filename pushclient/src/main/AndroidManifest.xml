@@ -28,7 +28,7 @@
         </receiver>
 
         <service
-            android:name=".service.PushClientIntentService"
+            android:name=".service.PushListenerService"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -45,6 +45,11 @@
 
         <service
             android:name=".service.RegistrationIntentService"
+            android:exported="false">
+        </service>
+
+        <service
+            android:name=".service.UnregistrationIntentService"
             android:exported="false">
         </service>
 

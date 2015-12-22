@@ -7,31 +7,30 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 
 import com.devsu.library.pushclient.prefs.PrefsConstants;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
 import java.io.IOException;
 
 /**
- * The GCM registration IntentService.
+ * The GCM Unregistration IntentService.
  */
-public class RegistrationIntentService extends IntentService {
+public class UnregistrationIntentService extends IntentService {
 
     /**
      * Log TAG.
      */
-    public static final String TAG = RegistrationIntentService.class.getSimpleName();
+    public static final String TAG = UnregistrationIntentService.class.getSimpleName();
 
     /**
      * Default constructor.
      */
-    public RegistrationIntentService() {
+    public UnregistrationIntentService() {
         super(TAG);
     }
 
     /**
-     * Generates a new registration ID using InstanceID.
-     * @param intent The intent with the Receiver tag, and GCM ID.
+     * Unregisters any GCM Registration ID on the device.
+     * @param intent The intent with the Receiver tag.
      */
     @Override
     public void onHandleIntent(Intent intent) {
@@ -39,10 +38,8 @@ public class RegistrationIntentService extends IntentService {
         Bundle bundle = new Bundle();
         bundle.putString(PrefsConstants.SERVICE_ORIGIN, TAG);
         try {
-            String gcmId = intent.getStringExtra(PrefsConstants.PREF_GCM_ID);
             InstanceID instanceID = InstanceID.getInstance(this);
-            String regId = instanceID.getToken(gcmId, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-            bundle.putString(PrefsConstants.PREF_REG_ID, regId);
+            instanceID.deleteInstanceID();
             receiver.send(Activity.RESULT_OK, bundle);
         } catch (IOException e) {
             bundle.putSerializable(PrefsConstants.REGISTRATION_EXCEPTION, e);

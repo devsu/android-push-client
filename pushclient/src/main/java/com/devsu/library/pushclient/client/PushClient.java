@@ -18,9 +18,9 @@ import com.devsu.library.pushclient.exception.PushClientException;
 import com.devsu.library.pushclient.prefs.PrefsConstants;
 import com.devsu.library.pushclient.service.RegistrationIntentService;
 import com.devsu.library.pushclient.service.RegistrationResultReceiver;
+import com.devsu.library.pushclient.service.UnregistrationIntentService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import java.io.IOException;
 
@@ -53,11 +53,6 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
      * The GCM ID.
      */
     private String mGcmId;
-
-    /**
-     * The GCM instance.
-     */
-    private GoogleCloudMessaging mGcm;
 
     /**
      * The retrieved registation ID.
@@ -136,30 +131,29 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
         sInstance.mGcmId = gcmId;
         sInstance.mInitCallback = initCallback;
         sInstance.mPushDelegate = delegate;
-        sInstance.startIntentServiceIfNeeded();
+        sInstance.startRegistrationIntentServiceIfNeeded();
     }
 
     /**
      * Launches the GCM Registration IntentService if app is not registered.
      */
-    private void startIntentServiceIfNeeded() {
+    private void startRegistrationIntentServiceIfNeeded() {
         if (!hasPlayServices()) {
             doOnCallbackError(new PlayServicesNotFoundException());
             return;
         }
-        mGcm = GoogleCloudMessaging.getInstance(mContext);
         mRegistrationId = loadRegistrationId();
         if (!TextUtils.isEmpty(mRegistrationId)) {
             doOnCallbackSuccess(false);
             return;
         }
-        startIntentService();
+        startRegistrationIntentService();
     }
 
     /**
      * Launches the GCM Registration IntentService.
      */
-    private void startIntentService() {
+    private void startRegistrationIntentService() {
         Intent intent = new Intent(mContext, RegistrationIntentService.class);
         intent.putExtra(RegistrationResultReceiver.TAG, mReceiver);
         intent.putExtra(PrefsConstants.PREF_GCM_ID, mGcmId);
@@ -167,11 +161,31 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
     }
 
     /**
-     * Receives the GCM Registration IntentService's result.
+     * Receives any IntentService's result, and handles Registration and Unregistration events.
      * @param resultCode The IntentService's result code.
      * @param resultData The IntentService's extras.
      */
     public void onReceiveResult(int resultCode, Bundle resultData) {
+        if (resultData == null) {
+            return;
+        }
+        String origin = resultData.getString(PrefsConstants.SERVICE_ORIGIN);
+        if (origin == null) {
+            return;
+        }
+        if (origin.equals(RegistrationIntentService.class.getSimpleName())) {
+            onReceiveRegistrationResult(resultCode, resultData);
+        } else if (origin.equals(UnregistrationIntentService.class.getSimpleName())) {
+            onReceiveUnregistrationResult(resultCode, resultData);
+        }
+    }
+
+    /**
+     * Receives the GCM Registration IntentService's result.
+     * @param resultCode The IntentService's result code.
+     * @param resultData The IntentService's extras.
+     */
+    public void onReceiveRegistrationResult(int resultCode, Bundle resultData) {
         if (mReceiver != null && resultCode == Activity.RESULT_OK) {
             mRegistrationId = resultData.getString(PrefsConstants.PREF_REG_ID);
             storeRegistrationId(mRegistrationId);
@@ -180,10 +194,32 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
         }
         if (mReceiver != null && resultCode == Activity.RESULT_CANCELED) {
             IOException e = (IOException) resultData.getSerializable(PrefsConstants.REGISTRATION_EXCEPTION);
-            if (e == null)
+            if (e == null) {
                 return;
+            }
             doOnCallbackError(e.getMessage().equalsIgnoreCase(INVALID_SENDER)
                     ? new InvalidSenderIdException(mGcmId) : new PushClientException(e));
+        }
+    }
+
+    /**
+     * Receives the GCM Unregistration IntentService's result.
+     * @param resultCode The IntentService's result code.
+     * @param resultData The IntentService's extras.
+     */
+    public void onReceiveUnregistrationResult(int resultCode, Bundle resultData) {
+        if (mReceiver != null && resultCode == Activity.RESULT_OK) {
+            sInstance.mRegistrationId = null;
+            sInstance.getPushPreferences().edit().clear().apply();
+            Log.d(TAG, "Unregistration successful.");
+            return;
+        }
+        if (mReceiver != null && resultCode == Activity.RESULT_CANCELED) {
+            IOException e = (IOException) resultData.getSerializable(PrefsConstants.REGISTRATION_EXCEPTION);
+            if (e == null) {
+                return;
+            }
+            Log.e(TAG, e.getMessage());
         }
     }
 
@@ -273,15 +309,21 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
      * Unregisters this device from GCM.
      */
     public static void unregister() {
+        if (sInstance == null)
+            throw new RuntimeException(TAG + " has not been initialized.");
         if (sInstance.mRegistrationId == null) {
             throw new RuntimeException(TAG + " is not registered");
         }
-        try {
-            sInstance.mGcm.unregister();
-            sInstance.getPushPreferences().edit().clear().apply();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        sInstance.startUnregistrationIntentService();
+    }
+
+    /**
+     * Launches the GCM Unregistration IntentService.
+     */
+    private void startUnregistrationIntentService() {
+        Intent intent = new Intent(mContext, UnregistrationIntentService.class);
+        intent.putExtra(RegistrationResultReceiver.TAG, mReceiver);
+        mContext.startService(intent);
     }
 
     /**
@@ -299,6 +341,14 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
     public static void setDelegate(PushDelegate pushDelegate) {
         sInstance.mPushDelegate = pushDelegate;
 
+    }
+
+    /**
+     * Gets the GCM ID (or Sender ID)
+     * @return The GCM ID (or Sender ID)
+     */
+    public static String getGcmId() {
+        return sInstance.mGcmId;
     }
 
     /**

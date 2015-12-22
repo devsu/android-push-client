@@ -8,7 +8,7 @@ android {
         minSdkVersion 12
         targetSdkVersion 23
         versionCode 1
-        versionName "1.0"
+        versionName "1.1.0"
     }
 
     buildTypes {
@@ -27,10 +27,10 @@ ext {
     libraryName = 'GCM Push Client'
     artifact = 'pushclient'
 
-    libraryDescription = 'Library that allows you to receive GCM Push Messages on Android.'
+    libraryDescription = 'Library that allows you to easily receive GCM Push Messages on Android.'
 
-    siteUrl = 'https://bitbucket.org/rion18/pushclient'
-    gitUrl = 'https://rion18@bitbucket.org/rion18/pushclient.git'
+    siteUrl = 'https://github.com/devsu/gcm-push-client'
+    gitUrl = 'https://github.com/devsu/gcm-push-client.git'
 
     libraryVersion = android.defaultConfig.versionName
 
