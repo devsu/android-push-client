@@ -8,10 +8,8 @@ Using GCM Push Client is very simple. You can import GCM Push Client on your bui
 
 ```
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
-    compile 'com.devsu:pushclient:1.0'
+    compile 'com.devsu:pushclient:1.1.0'
 ```
-
-
 
 Then, initialize the library on your Application, and that's it!
 
