@@ -4,7 +4,16 @@ GCM Push Client is an Android library that allows receiving Push Messages, witho
 
 ## Overview ###
 
-Using GCM Push Client is very simple. Initialize the library on your Application, and that's it!
+Using GCM Push Client is very simple. You can import GCM Push Client on your build.gradle file (using jCenter or Maven Central):
+
+```
+    compile 'com.google.android.gms:play-services-gcm:8.4.0'
+    compile 'com.devsu:pushclient:1.0'
+```
+
+
+
+Then, initialize the library on your Application, and that's it!
 
 ```java
 public class MyApplication extends Application {
