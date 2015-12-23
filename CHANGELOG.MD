@@ -1,6 +1,6 @@
 # Change Log
 
-## [1.0.0](https://github.com/devsu/gcm-push-client/releases/tag/1.0.0) (2015-12-22)
+## [1.1.0](https://github.com/devsu/gcm-push-client/releases/tag/1.1.0) (2015-12-22)
 
 First release of the GCM Push Client.
 
