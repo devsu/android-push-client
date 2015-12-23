@@ -126,6 +126,9 @@ public class MyApplication extends Application {
 }
 ```
 
+## Authors ##
+Feel free to contact Alvaro López at rion18@hotmail.com!
+
 ## License ###
 
 Copyright 2015 Devsu Software
