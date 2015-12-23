@@ -9,7 +9,7 @@ Using GCM Push Client is very simple. You can import GCM Push Client on your bui
 ```
     // Remember to add your GCM Play Services dependency!
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
-    compile 'com.devsu:pushclient:1.1.0'
+    compile 'com.devsu:gcm-push-client:1.0.0'
 ```
 
 Then, initialize the library on your Application, and that's it!
