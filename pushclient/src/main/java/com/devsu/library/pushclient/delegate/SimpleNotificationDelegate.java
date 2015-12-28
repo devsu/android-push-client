@@ -94,9 +94,7 @@ public class SimpleNotificationDelegate implements PushDelegate {
     }
 
     /**
-     * Handles the Notification message. It displays the Push Message using a Notification object.
-     * @param context The context.
-     * @param extras The intent extras that were produced by the Broadcast Receiver.
+     * @see com.devsu.library.pushclient.delegate.PushDelegate#handleNotification(android.content.Context, android.os.Bundle)
      */
     @Override
     public void handleNotification(Context context, Bundle extras) {

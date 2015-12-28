@@ -13,5 +13,9 @@ public interface InitCallback {
      */
     void onSuccess(String registrationId, boolean hasBeenUpdated);
 
+    /**
+     * Callback when an error is thrown while fetching an ID.
+     * @param throwable The throwable occurred while fetching an ID.
+     */
     void onError(Throwable throwable);
 }

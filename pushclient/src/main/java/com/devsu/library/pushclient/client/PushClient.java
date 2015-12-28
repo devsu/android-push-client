@@ -360,7 +360,7 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
     }
 
     /**
-     * Class default values.
+     * Default values for this class.
      */
     private static class Defaults {
 
