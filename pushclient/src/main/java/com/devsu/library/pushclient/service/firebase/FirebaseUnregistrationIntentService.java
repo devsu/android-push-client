@@ -1,4 +1,4 @@
-package com.devsu.library.pushclient.service;
+package com.devsu.library.pushclient.service.firebase;
 
 import android.app.Activity;
 import android.app.IntentService;
@@ -6,25 +6,28 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
+import com.devsu.library.pushclient.client.PushClient;
 import com.devsu.library.pushclient.prefs.PrefsConstants;
-import com.google.android.gms.iid.InstanceID;
+import com.devsu.library.pushclient.service.Provider;
+import com.devsu.library.pushclient.service.RegistrationResultReceiver;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.io.IOException;
 
 /**
  * The GCM Unregistration IntentService.
  */
-public class UnregistrationIntentService extends IntentService {
+public class FirebaseUnregistrationIntentService extends IntentService {
 
     /**
      * Log TAG.
      */
-    public static final String TAG = UnregistrationIntentService.class.getSimpleName();
+    public static final String TAG = FirebaseUnregistrationIntentService.class.getSimpleName();
 
     /**
      * Default constructor.
      */
-    public UnregistrationIntentService() {
+    public FirebaseUnregistrationIntentService() {
         super(TAG);
     }
 
@@ -34,12 +37,14 @@ public class UnregistrationIntentService extends IntentService {
      */
     @Override
     public void onHandleIntent(Intent intent) {
+        if (PushClient.getProvider() != Provider.FCM) {
+            return;
+        }
         ResultReceiver receiver = intent.getParcelableExtra(RegistrationResultReceiver.TAG);
         Bundle bundle = new Bundle();
         bundle.putString(PrefsConstants.SERVICE_ORIGIN, TAG);
         try {
-            InstanceID instanceID = InstanceID.getInstance(this);
-            instanceID.deleteInstanceID();
+            FirebaseInstanceId.getInstance().deleteInstanceId();
             receiver.send(Activity.RESULT_OK, bundle);
         } catch (IOException e) {
             bundle.putSerializable(PrefsConstants.REGISTRATION_EXCEPTION, e);

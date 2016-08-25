@@ -8,11 +8,15 @@ Using GCM Push Client is very simple. You can import GCM Push Client on your bui
 
 ```
     // Remember to add your GCM Play Services dependency!
-    compile 'com.google.android.gms:play-services-gcm:8.4.0'
-    compile 'com.devsu:pushclient:1.1.0'
+    compile 'com.google.android.gms:play-services-gcm:9.4.0'
+
+    // Or if you're using FCM, import the FCM dependency!
+    compile 'com.google.firebase:firebase-messaging:9.4.0'
+
+    compile 'com.devsu:pushclient:1.1.1'
 ```
 
-Then, initialize the library on your Application, and that's it!
+Add the com.google.gms.google-services plugin, and then, initialize the library on your Application. That's it!
 
 ```java
 public class MyApplication extends Application {
@@ -20,7 +24,12 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         ...
+
+        // FCM is selected by default
         PushClient.initialize(this, "MY_GCM_ID");
+
+        // Or GCM
+        PushClient.initialize(this, Provider.GCM, "MY_GCM_ID");
     }
 }
 ```
@@ -88,7 +97,7 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         ...
-        PushClient.initialize(this, "MY_GCM_ID", new ToastDelegate(this));
+        PushClient.initialize(this, Provider.GCM, "MY_GCM_ID", new ToastDelegate(this));
     }
 }
 ```
@@ -103,7 +112,7 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         ...
-        PushClient.initialize(this, "MY_GCM_ID");
+        PushClient.initialize(this, Provider.FCM, "MY_GCM_ID");
         SimpleNotificationDelegate delegate = (SimpleNotificationDelegate) PushClient.getDelegate();
 
         // Change the large icon

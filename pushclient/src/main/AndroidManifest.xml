@@ -1,10 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.devsu.library.pushclient">
 
-    <permission android:name=".permission.C2D_MESSAGE" android:protectionLevel="signature"/>
-    <uses-permission android:name=".permission.C2D_MESSAGE" />
-
-
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -28,29 +24,63 @@
         </receiver>
 
         <service
-            android:name=".service.PushListenerService"
-            android:exported="false" >
+            android:name=".service.gcm.GcmPushListenerService"
+            android:exported="false"
+            android:enabled="false">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
 
         <service
-            android:name=".service.IdListenerService"
-            android:exported="false">
+            android:name=".service.firebase.FirebasePushListenerService"
+            android:exported="false"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".service.gcm.GcmIdListenerService"
+            android:exported="false"
+            android:enabled="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
         </service>
 
         <service
-            android:name=".service.RegistrationIntentService"
-            android:exported="false">
+            android:name=".service.firebase.FirebaseIdListenerService"
+            android:exported="false"
+            android:enabled="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
         </service>
 
         <service
-            android:name=".service.UnregistrationIntentService"
-            android:exported="false">
+            android:name=".service.gcm.GcmRegistrationIntentService"
+            android:exported="false"
+            android:enabled="false">
+        </service>
+
+        <service
+            android:name=".service.firebase.FirebaseRegistrationIntentService"
+            android:exported="false"
+            android:enabled="false">
+        </service>
+
+        <service
+            android:name=".service.gcm.GcmUnregistrationIntentService"
+            android:exported="false"
+            android:enabled="false">
+        </service>
+
+        <service
+            android:name=".service.firebase.FirebaseUnregistrationIntentService"
+            android:exported="false"
+            android:enabled="false">
         </service>
 
     </application>

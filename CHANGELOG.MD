@@ -10,3 +10,7 @@ First release of the GCM Push Client.
 + Added Bintray plugin for gradle.
 + Fixed GCM.unregister() method deprecation by creating an UnregisterService.
 + Fixed GCM.MESSAGE_TYPE_MESSAGE constant deprecation by creating a class that extends GcmListenerService.
+
+## [1.1.1](https://github.com/devsu/gcm-push-client/releases/tag/1.1.1) (2016-08-24)
+
++ Added FCM support.

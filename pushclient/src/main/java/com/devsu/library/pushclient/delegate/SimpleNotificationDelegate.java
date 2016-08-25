@@ -17,6 +17,9 @@ import android.support.v4.app.NotificationCompat;
 
 import com.devsu.library.pushclient.exception.InvalidLightsPatternException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class SimpleNotificationDelegate implements PushDelegate {
 
     /**
@@ -98,8 +101,16 @@ public class SimpleNotificationDelegate implements PushDelegate {
      */
     @Override
     public void handleNotification(Context context, Bundle extras) {
-        String title = extras.getString(mTitleKey, Defaults.getDefaultTitle(context));
-        String message = extras.getString(mMessageKey, null);
+        Map<String, String> map = new HashMap<>();
+        map.put(mTitleKey, extras.getString(mTitleKey, Defaults.getDefaultTitle(context)));
+        map.put(mMessageKey, extras.getString(mMessageKey, null));
+        handleNotification(context, map);
+    }
+
+    @Override
+    public void handleNotification(Context context, Map<String, String> map) {
+        String title = map.get(mTitleKey);
+        String message = map.get(mMessageKey);
         if (message == null) {
             return;
         }

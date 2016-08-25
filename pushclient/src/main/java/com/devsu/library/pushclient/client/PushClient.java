@@ -1,9 +1,12 @@
 package com.devsu.library.pushclient.client;
 
 import android.app.Activity;
+import android.app.IntentService;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -16,9 +19,16 @@ import com.devsu.library.pushclient.exception.InvalidSenderIdException;
 import com.devsu.library.pushclient.exception.PlayServicesNotFoundException;
 import com.devsu.library.pushclient.exception.PushClientException;
 import com.devsu.library.pushclient.prefs.PrefsConstants;
-import com.devsu.library.pushclient.service.RegistrationIntentService;
+import com.devsu.library.pushclient.service.Provider;
 import com.devsu.library.pushclient.service.RegistrationResultReceiver;
-import com.devsu.library.pushclient.service.UnregistrationIntentService;
+import com.devsu.library.pushclient.service.firebase.FirebaseIdListenerService;
+import com.devsu.library.pushclient.service.firebase.FirebasePushListenerService;
+import com.devsu.library.pushclient.service.firebase.FirebaseRegistrationIntentService;
+import com.devsu.library.pushclient.service.firebase.FirebaseUnregistrationIntentService;
+import com.devsu.library.pushclient.service.gcm.GcmIdListenerService;
+import com.devsu.library.pushclient.service.gcm.GcmPushListenerService;
+import com.devsu.library.pushclient.service.gcm.GcmRegistrationIntentService;
+import com.devsu.library.pushclient.service.gcm.GcmUnregistrationIntentService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
@@ -75,11 +85,15 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
     private ResultReceiver mReceiver;
 
     /**
-     * Private constructor.
+     * Provider for this PushClient (FCM or GCM).
+     */
+    private Provider mProvider;
+
+    /**
+     * Private constructor. Selects FCM as default provider.
      */
     private PushClient() {
-        mReceiver = new RegistrationResultReceiver(new Handler());
-        ((RegistrationResultReceiver)mReceiver).setReceiver(this);
+        resetReceiver();
     }
 
     /**
@@ -88,7 +102,17 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
      * @param gcmId The app's GCM ID.
      */
     public static void initialize(Context context, String gcmId) {
-        initialize(context, gcmId, Defaults.generateInitCallback(), Defaults.generateDefaultDelegate(context));
+        initialize(context, Defaults.DEFAULT_PROVIDER, gcmId, Defaults.generateInitCallback(), Defaults.generateDefaultDelegate(context));
+    }
+
+    /**
+     * Initialization with 3 params.
+     * @param context The application context.
+     * @param provider The provider (FCM or GCM).
+     * @param gcmId The app's GCM ID.
+     */
+    public static void initialize(Context context, Provider provider, String gcmId) {
+        initialize(context, provider, gcmId, Defaults.generateInitCallback(), Defaults.generateDefaultDelegate(context));
     }
 
     /**
@@ -98,7 +122,18 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
      * @param delegate The delegate that will handle how to show push messages.
      */
     public static void initialize(Context context, String gcmId, PushDelegate delegate) {
-        initialize(context, gcmId, Defaults.generateInitCallback(), delegate);
+        initialize(context, Defaults.DEFAULT_PROVIDER, gcmId, Defaults.generateInitCallback(), delegate);
+    }
+
+    /**
+     * Initialization with 4 params.
+     * @param context The application context.
+     * @param provider The provider (FCM or GCM).
+     * @param gcmId The app's GCM ID.
+     * @param delegate The delegate that will handle how to show push messages.
+     */
+    public static void initialize(Context context, Provider provider, String gcmId, PushDelegate delegate) {
+        initialize(context, provider, gcmId, Defaults.generateInitCallback(), delegate);
     }
 
     /**
@@ -108,17 +143,29 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
      * @param initCallback The initialization callback.
      */
     public static void initialize(Context context, String gcmId, InitCallback initCallback) {
-        initialize(context, gcmId, initCallback, Defaults.generateDefaultDelegate(context));
+        initialize(context, Defaults.DEFAULT_PROVIDER, gcmId, initCallback, Defaults.generateDefaultDelegate(context));
     }
 
     /**
      * Initialization with 4 params.
      * @param context The application context.
+     * @param provider The provider (FCM or GCM).
+     * @param gcmId The app's GCM ID.
+     * @param initCallback The initialization callback.
+     */
+    public static void initialize(Context context, Provider provider, String gcmId, InitCallback initCallback) {
+        initialize(context, provider, gcmId, initCallback, Defaults.generateDefaultDelegate(context));
+    }
+
+    /**
+     * Initialization with 5 params.
+     * @param context The application context.
+     * @param provider The provider (FCM or GCM).
      * @param gcmId The app's GCM ID.
      * @param delegate The delegate that will handle how to show push messages.
      * @param initCallback The initialization callback.
      */
-    public static void initialize(Context context, String gcmId, InitCallback initCallback, PushDelegate delegate) {
+    public static void initialize(Context context, Provider provider, String gcmId, InitCallback initCallback, PushDelegate delegate) {
         if (sInstance == null) {
             synchronized (PushClient.class) {
                 sInstance = new PushClient();
@@ -127,15 +174,59 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
         if (sInstance.mContext != null) {
             throw new RuntimeException(new PushClientException(TAG + " already initialized. Please initialize once on Application."));
         }
+        if (context == null) {
+            throw new RuntimeException(new PushClientException(TAG + " error. Context cannot be null."));
+        }
+        if (provider == null) {
+            throw new RuntimeException(new PushClientException(TAG + " error. Provider cannot be null."));
+        }
+        if (TextUtils.isEmpty(gcmId)) {
+            throw new RuntimeException(new PushClientException(TAG + " error. GcmId cannot be null or empty."));
+        }
+        if (initCallback == null) {
+            throw new RuntimeException(new PushClientException(TAG + " error. InitCallback cannot be null."));
+        }
+        if (delegate == null) {
+            throw new RuntimeException(new PushClientException(TAG + " error. PushDelegate cannot be null."));
+        }
         sInstance.mContext = context.getApplicationContext();
         sInstance.mGcmId = gcmId;
         sInstance.mInitCallback = initCallback;
         sInstance.mPushDelegate = delegate;
+        sInstance.mProvider = provider;
+        sInstance.enableProviderServices();
         sInstance.startRegistrationIntentServiceIfNeeded();
     }
 
     /**
-     * Launches the GCM Registration IntentService if app is not registered.
+     * Enables services according to the provider
+     */
+    private void enableProviderServices() {
+        if (mProvider == null) {
+            throw new RuntimeException(new PushClientException(TAG + " error. Provider cannot be null."));
+        }
+        if (mProvider == Provider.GCM) {
+            Class<?>[] services = {GcmIdListenerService.class, GcmPushListenerService.class,
+                    GcmRegistrationIntentService.class, GcmUnregistrationIntentService.class};
+            enableViaPackManager(services);
+            return;
+        }
+        Class<?>[] services = {FirebaseIdListenerService.class, FirebasePushListenerService.class,
+                FirebaseRegistrationIntentService.class, FirebaseUnregistrationIntentService.class};
+        enableViaPackManager(services);
+    }
+
+    private void enableViaPackManager(Class<?>[] services) {
+        PackageManager pm = mContext.getPackageManager();
+        for (Class<?> service : services) {
+            ComponentName component = new ComponentName(mContext, service);
+            pm.setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+        }
+    }
+
+
+    /**
+     * Launches the correct Registration IntentService if app is not registered.
      */
     private void startRegistrationIntentServiceIfNeeded() {
         if (!hasPlayServices()) {
@@ -147,14 +238,19 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
             doOnCallbackSuccess(false);
             return;
         }
-        startRegistrationIntentService();
+        startRegistrationIntent();
     }
 
     /**
-     * Launches the GCM Registration IntentService.
+     * Launches the Provider's Registration IntentService
      */
-    private void startRegistrationIntentService() {
-        Intent intent = new Intent(mContext, RegistrationIntentService.class);
+    private void startRegistrationIntent() {
+        if (mProvider == null) {
+            throw new RuntimeException(new PushClientException(TAG + " error. Provider cannot be null."));
+        }
+        Class<? extends IntentService> intentService =
+                mProvider == Provider.FCM ? FirebaseRegistrationIntentService.class : GcmRegistrationIntentService.class;
+        Intent intent = new Intent(mContext, intentService);
         intent.putExtra(RegistrationResultReceiver.TAG, mReceiver);
         intent.putExtra(PrefsConstants.PREF_GCM_ID, mGcmId);
         mContext.startService(intent);
@@ -173,32 +269,41 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
         if (origin == null) {
             return;
         }
-        if (origin.equals(RegistrationIntentService.class.getSimpleName())) {
+        if (origin.equals(GcmRegistrationIntentService.class.getSimpleName())
+                || origin.equals(FirebaseRegistrationIntentService.class.getSimpleName())) {
             onReceiveRegistrationResult(resultCode, resultData);
-        } else if (origin.equals(UnregistrationIntentService.class.getSimpleName())) {
+        } else if (origin.equals(GcmUnregistrationIntentService.class.getSimpleName())
+                || origin.equals(FirebaseUnregistrationIntentService.class.getSimpleName())) {
             onReceiveUnregistrationResult(resultCode, resultData);
         }
     }
 
     /**
-     * Receives the GCM Registration IntentService's result.
+     * Receives the Provider's Registration IntentService's result.
      * @param resultCode The IntentService's result code.
      * @param resultData The IntentService's extras.
      */
     public void onReceiveRegistrationResult(int resultCode, Bundle resultData) {
-        if (mReceiver != null && resultCode == Activity.RESULT_OK) {
+        if (mReceiver == null) {
+            return;
+        }
+        if (resultCode == Activity.RESULT_OK) {
             mRegistrationId = resultData.getString(PrefsConstants.PREF_REG_ID);
             storeRegistrationId(mRegistrationId);
             doOnCallbackSuccess(true);
             return;
         }
-        if (mReceiver != null && resultCode == Activity.RESULT_CANCELED) {
+        if (resultCode == Activity.RESULT_CANCELED) {
             IOException e = (IOException) resultData.getSerializable(PrefsConstants.REGISTRATION_EXCEPTION);
             if (e == null) {
                 return;
             }
             doOnCallbackError(e.getMessage().equalsIgnoreCase(INVALID_SENDER)
                     ? new InvalidSenderIdException(mGcmId) : new PushClientException(e));
+            return;
+        }
+        if (resultCode == Activity.RESULT_FIRST_USER) {
+            Log.w(TAG, "Registration from " + mProvider.name() + " was null or empty.");
         }
     }
 
@@ -321,9 +426,22 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
      * Launches the GCM Unregistration IntentService.
      */
     private void startUnregistrationIntentService() {
-        Intent intent = new Intent(mContext, UnregistrationIntentService.class);
+        if (mProvider == null) {
+            throw new RuntimeException(new PushClientException(TAG + " error. Provider cannot be null."));
+        }
+        Class<? extends IntentService> intentService =
+                mProvider == Provider.FCM ? FirebaseUnregistrationIntentService.class : GcmUnregistrationIntentService.class;
+        Intent intent = new Intent(mContext, intentService);
         intent.putExtra(RegistrationResultReceiver.TAG, mReceiver);
         mContext.startService(intent);
+    }
+
+    /**
+     * Resets the receiver.
+     */
+    private void resetReceiver() {
+        mReceiver = new RegistrationResultReceiver(new Handler());
+        ((RegistrationResultReceiver)mReceiver).setReceiver(this);
     }
 
     /**
@@ -339,8 +457,24 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
      * @param pushDelegate The delegate that handles the push message display.
      */
     public static void setDelegate(PushDelegate pushDelegate) {
+        if (sInstance == null) {
+            throw new RuntimeException(new PushClientException(TAG + " has never been initialized. Please initialize once on Application."));
+        }
+        if (pushDelegate == null) {
+            throw new RuntimeException(new PushClientException(TAG + " error. PushDelegate cannot be null."));
+        }
         sInstance.mPushDelegate = pushDelegate;
+    }
 
+    /**
+     * Gets the receiver.
+     * @return The receiver.
+     */
+    public static ResultReceiver getReceiver() {
+        if (sInstance.mReceiver == null) {
+            sInstance.resetReceiver();
+        }
+        return sInstance.mReceiver;
     }
 
     /**
@@ -349,6 +483,14 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
      */
     public static String getGcmId() {
         return sInstance.mGcmId;
+    }
+
+    /**
+     * Gets the Provider (FCM or GCM)
+     * @return The Provider (FCM or GCM)
+     */
+    public static Provider getProvider() {
+        return sInstance.mProvider;
     }
 
     /**
@@ -381,5 +523,7 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
         private static PushDelegate generateDefaultDelegate(Context context) {
             return new SimpleNotificationDelegate(context);
         }
+
+        private static Provider DEFAULT_PROVIDER = Provider.FCM;
     }
 }
