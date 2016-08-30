@@ -27,7 +27,7 @@ ext {
     libraryName = 'GCM Push Client'
     artifact = 'pushclient'
 
-    libraryDescription = 'Library that allows you to easily receive GCM Push Messages on Android.'
+    libraryDescription = 'Library that allows you to easily receive GCM/FCM Push Messages on Android.'
 
     siteUrl = 'https://github.com/devsu/gcm-push-client'
     gitUrl = 'https://github.com/devsu/gcm-push-client.git'
@@ -37,6 +37,7 @@ ext {
     developerId = 'rion18'
     developerName = 'Alvaro López'
     developerEmail = 'rion18@hotmail.com'
+    developerOrganization = "devsu"
 
     licenseName = 'The Apache Software License, Version 2.0'
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
@@ -84,8 +85,7 @@ install {
     }
 }
 
-// BINTRAY
-apply plugin: 'com.jfrog.bintray'
+apply plugin: "com.jfrog.bintray"
 
 version = libraryVersion
 
@@ -119,6 +119,7 @@ bintray {
     pkg {
         repo = bintrayRepo
         name = bintrayName
+        userOrg = developerOrganization
         desc = libraryDescription
         websiteUrl = siteUrl
         vcsUrl = gitUrl
