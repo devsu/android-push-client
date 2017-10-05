@@ -8,12 +8,12 @@ Using GCM Push Client is very simple. You can import GCM Push Client on your bui
 
 ```
     // Remember to add your GCM Play Services dependency!
-    compile 'com.google.android.gms:play-services-gcm:9.4.0'
+    compile 'com.google.android.gms:play-services-gcm:11.4.2'
 
     // Or if you're using FCM, import the FCM dependency!
-    compile 'com.google.firebase:firebase-messaging:9.4.0'
+    compile 'com.google.firebase:firebase-messaging:11.4.2'
 
-    compile 'com.devsu:pushclient:1.1.1'
+    compile 'com.devsu:pushclient:1.1.2'
 ```
 
 Add the com.google.gms.google-services plugin, and then, initialize the library on your Application. That's it!
@@ -26,6 +26,7 @@ public class MyApplication extends Application {
         ...
 
         // FCM is selected by default
+        FirebaseApp.initialize(this);
         PushClient.initialize(this, "MY_GCM_ID");
 
         // Or GCM

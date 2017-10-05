@@ -1,4 +1,4 @@
-package com.devsu.library.pushclient.service.firebase;
+package com.devsu.library.pushclient.service.fcm;
 
 import android.app.Activity;
 import android.app.IntentService;
@@ -16,17 +16,17 @@ import com.google.firebase.iid.FirebaseInstanceId;
 /**
  * The GCM registration IntentService.
  */
-public class FirebaseRegistrationIntentService extends IntentService {
+public class FcmRegistrationIntentService extends IntentService {
 
     /**
      * Log TAG.
      */
-    public static final String TAG = FirebaseRegistrationIntentService.class.getSimpleName();
+    public static final String TAG = FcmRegistrationIntentService.class.getSimpleName();
 
     /**
      * Default constructor.
      */
-    public FirebaseRegistrationIntentService() {
+    public FcmRegistrationIntentService() {
         super(TAG);
     }
 

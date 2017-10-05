@@ -1,4 +1,4 @@
-package com.devsu.pushclient.app;
+package com.devsu.pushclient.fcm.app;
 
 import com.devsu.library.pushclient.client.PushClient;
 import com.devsu.library.pushclient.service.Provider;
@@ -8,6 +8,6 @@ public class Application extends android.app.Application {
   @Override
   public void onCreate() {
     super.onCreate();
-    PushClient.initialize(this, Provider.GCM, "380536757239");
+    PushClient.initialize(this, Provider.FCM, "1015075478581");
   }
 }

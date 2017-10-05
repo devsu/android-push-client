@@ -1,4 +1,4 @@
-package com.devsu.library.pushclient.service.firebase;
+package com.devsu.library.pushclient.service.fcm;
 
 import android.app.Activity;
 import android.app.IntentService;
@@ -17,17 +17,17 @@ import java.io.IOException;
 /**
  * The GCM Unregistration IntentService.
  */
-public class FirebaseUnregistrationIntentService extends IntentService {
+public class FcmUnregistrationIntentService extends IntentService {
 
     /**
      * Log TAG.
      */
-    public static final String TAG = FirebaseUnregistrationIntentService.class.getSimpleName();
+    public static final String TAG = FcmUnregistrationIntentService.class.getSimpleName();
 
     /**
      * Default constructor.
      */
-    public FirebaseUnregistrationIntentService() {
+    public FcmUnregistrationIntentService() {
         super(TAG);
     }
 

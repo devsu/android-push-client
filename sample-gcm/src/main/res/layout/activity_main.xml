@@ -8,7 +8,7 @@
   android:paddingLeft="@dimen/activity_horizontal_margin"
   android:paddingRight="@dimen/activity_horizontal_margin"
   android:orientation="vertical"
-  tools:context=".ui.MainActivity">
+  tools:context=".gcm.ui.MainActivity">
 
   <TextView
     android:id="@+id/registration_id_text"

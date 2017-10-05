@@ -1,4 +1,4 @@
-package com.devsu.pushclient.ui;
+package com.devsu.pushclient.fcm.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import com.devsu.library.pushclient.client.PushClient;
-import com.devsu.pushclient.R;
+import com.devsu.pushclient.fcm.R;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -21,3 +21,4 @@ First release of the GCM Push Client.
 + Updated dependencies.
 + Added getRegistrationId method.
 + Added color as a delegate property.
++ Added a sample for FCM and a sample for GCM.

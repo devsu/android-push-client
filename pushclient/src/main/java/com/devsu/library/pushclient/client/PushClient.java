@@ -21,10 +21,10 @@ import com.devsu.library.pushclient.exception.PushClientException;
 import com.devsu.library.pushclient.prefs.PrefsConstants;
 import com.devsu.library.pushclient.service.Provider;
 import com.devsu.library.pushclient.service.RegistrationResultReceiver;
-import com.devsu.library.pushclient.service.firebase.FirebaseIdListenerService;
-import com.devsu.library.pushclient.service.firebase.FirebasePushListenerService;
-import com.devsu.library.pushclient.service.firebase.FirebaseRegistrationIntentService;
-import com.devsu.library.pushclient.service.firebase.FirebaseUnregistrationIntentService;
+import com.devsu.library.pushclient.service.fcm.FcmIdListenerService;
+import com.devsu.library.pushclient.service.fcm.FcmPushListenerService;
+import com.devsu.library.pushclient.service.fcm.FcmRegistrationIntentService;
+import com.devsu.library.pushclient.service.fcm.FcmUnregistrationIntentService;
 import com.devsu.library.pushclient.service.gcm.GcmIdListenerService;
 import com.devsu.library.pushclient.service.gcm.GcmPushListenerService;
 import com.devsu.library.pushclient.service.gcm.GcmRegistrationIntentService;
@@ -217,8 +217,8 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
             enableViaPackManager(services);
             return;
         }
-        Class<?>[] services = {FirebaseIdListenerService.class, FirebasePushListenerService.class,
-                FirebaseRegistrationIntentService.class, FirebaseUnregistrationIntentService.class};
+        Class<?>[] services = {FcmIdListenerService.class, FcmPushListenerService.class,
+                FcmRegistrationIntentService.class, FcmUnregistrationIntentService.class};
         enableViaPackManager(services);
     }
 
@@ -244,19 +244,16 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
             doOnCallbackSuccess(false);
             return;
         }
-        startRegistrationIntent();
+        if (mProvider == Provider.GCM) {
+            startGcmRegistrationIntent();
+        }
     }
 
     /**
      * Launches the Provider's Registration IntentService
      */
-    private void startRegistrationIntent() {
-        if (mProvider == null) {
-            throw new RuntimeException(new PushClientException(TAG + " error. Provider cannot be null."));
-        }
-        Class<? extends IntentService> intentService =
-                mProvider == Provider.FCM ? FirebaseRegistrationIntentService.class : GcmRegistrationIntentService.class;
-        Intent intent = new Intent(mContext, intentService);
+    private void startGcmRegistrationIntent() {
+        Intent intent = new Intent(mContext, GcmRegistrationIntentService.class);
         intent.putExtra(RegistrationResultReceiver.TAG, mReceiver);
         intent.putExtra(PrefsConstants.PREF_GCM_ID, mGcmId);
         mContext.startService(intent);
@@ -276,10 +273,10 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
             return;
         }
         if (origin.equals(GcmRegistrationIntentService.class.getSimpleName())
-                || origin.equals(FirebaseRegistrationIntentService.class.getSimpleName())) {
+                || origin.equals(FcmRegistrationIntentService.class.getSimpleName())) {
             onReceiveRegistrationResult(resultCode, resultData);
         } else if (origin.equals(GcmUnregistrationIntentService.class.getSimpleName())
-                || origin.equals(FirebaseUnregistrationIntentService.class.getSimpleName())) {
+                || origin.equals(FcmUnregistrationIntentService.class.getSimpleName())) {
             onReceiveUnregistrationResult(resultCode, resultData);
         }
     }
@@ -436,7 +433,7 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
             throw new RuntimeException(new PushClientException(TAG + " error. Provider cannot be null."));
         }
         Class<? extends IntentService> intentService =
-                mProvider == Provider.FCM ? FirebaseUnregistrationIntentService.class : GcmUnregistrationIntentService.class;
+                mProvider == Provider.FCM ? FcmUnregistrationIntentService.class : GcmUnregistrationIntentService.class;
         Intent intent = new Intent(mContext, intentService);
         intent.putExtra(RegistrationResultReceiver.TAG, mReceiver);
         mContext.startService(intent);
