@@ -14,3 +14,8 @@ First release of the GCM Push Client.
 ## [1.1.1](https://github.com/devsu/gcm-push-client/releases/tag/1.1.1) (2016-08-24)
 
 + Added FCM support.
+
+## [1.1.2](https://github.com/devsu/gcm-push-client/releases/tag/1.1.2) (2017-10-05)
+
++ Fixed a seemingly random NullPointerException.
++ Updated dependencies.
