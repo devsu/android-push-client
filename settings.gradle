@@ -1,1 +1,1 @@
-include ':sample', ':pushclient'
+include ':sample-gcm', ':sample-fcm', ':pushclient'

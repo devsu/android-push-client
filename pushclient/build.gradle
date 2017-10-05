@@ -103,6 +103,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
     classifier = 'javadoc'
 }
+
 artifacts {
     archives javadocJar
     archives sourcesJar
@@ -143,6 +144,6 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:26.0.2'
-    compile 'com.google.android.gms:play-services-gcm:11.0.4'
+    compile 'com.google.android.gms:play-services-gcm:11.4.2'
     compile 'com.google.firebase:firebase-messaging:11.4.2'
 }
