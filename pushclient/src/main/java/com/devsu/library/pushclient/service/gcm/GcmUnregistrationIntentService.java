@@ -5,13 +5,12 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-
+import android.util.Log;
 import com.devsu.library.pushclient.client.PushClient;
 import com.devsu.library.pushclient.prefs.PrefsConstants;
 import com.devsu.library.pushclient.service.Provider;
 import com.devsu.library.pushclient.service.RegistrationResultReceiver;
 import com.google.android.gms.iid.InstanceID;
-
 import java.io.IOException;
 
 /**
@@ -49,7 +48,10 @@ public class GcmUnregistrationIntentService extends IntentService {
             receiver.send(Activity.RESULT_OK, bundle);
         } catch (IOException e) {
             bundle.putSerializable(PrefsConstants.REGISTRATION_EXCEPTION, e);
-            receiver.send(Activity.RESULT_CANCELED, bundle);
+            Log.e(TAG, "Error occurred when using UnregistrationIntentService", e);
+            if (receiver != null) {
+                receiver.send(Activity.RESULT_CANCELED, bundle);
+            }
         }
     }
 }
