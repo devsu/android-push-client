@@ -19,3 +19,5 @@ First release of the GCM Push Client.
 
 + Fixed a seemingly random NullPointerException.
 + Updated dependencies.
++ Added getRegistrationId method.
++ Added color as a delegate property.

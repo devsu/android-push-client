@@ -13,6 +13,8 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
 import android.support.v4.app.NotificationCompat;
 
 import com.devsu.library.pushclient.exception.InvalidLightsPatternException;
@@ -25,52 +27,57 @@ public class SimpleNotificationDelegate implements PushDelegate {
     /**
      * The Activity that is opened when clicking the notification.
      */
-    private Class<? extends Activity> mDefaultActivity;
+    protected Class<? extends Activity> mDefaultActivity;
 
     /**
      * The small icon's drawable resource ID.
      */
-    private int mSmallIconDrawableResId;
+    protected @DrawableRes int mSmallIconDrawableResId;
 
     /**
      * The large icon's drawable resource ID.
      */
-    private int mLargeIconDrawableResId;
+    protected @DrawableRes int mLargeIconDrawableResId;
 
     /**
      * The title key for the GCM message.
      */
-    private String mTitleKey;
+    protected String mTitleKey;
 
     /**
      * The message key for the GCM message.
      */
-    private String mMessageKey;
+    protected String mMessageKey;
 
     /**
      * The vibration pattern: Index 0 indicates the delay. Odd indices indicate vibration time. Even indices indicate sleep time.
      */
-    private long[] mVibrationPattern;
+    protected long[] mVibrationPattern;
 
     /**
      * The lights pattern. It must be of size 2. Index 0 indicates ON time. Index 1 indicates OFF time.
      */
-    private int[] mLightsPattern;
+    protected int[] mLightsPattern;
 
     /**
      * If the devices supports it, sets the device's notification light color.
      */
-    private int mLightColor;
+    protected @ColorInt int mLightColor;
 
     /**
      * Notification's autocancel.
      */
-    private boolean mAutoCancel;
+    protected boolean mAutoCancel;
 
     /**
      * Notification's sound.
      */
-    private Uri mSoundUri;
+    protected Uri mSoundUri;
+
+    /**
+     * Notification's accent color.
+     */
+    protected @ColorInt int mAccentColor;
 
     /**
      * Single param constructor.
@@ -84,7 +91,7 @@ public class SimpleNotificationDelegate implements PushDelegate {
      * Sets the default values for all fields.
      * @param context The application context
      */
-    private void setDefaultValues(Context context) {
+    protected void setDefaultValues(Context context) {
         mSmallIconDrawableResId = Defaults.getDefaultIconResId(context);
         mLargeIconDrawableResId = Defaults.getDefaultIconResId(context);
         mTitleKey = Defaults.TITLE_KEY;
@@ -94,6 +101,7 @@ public class SimpleNotificationDelegate implements PushDelegate {
         mLightColor = Defaults.LIGHT_COLOR;
         mAutoCancel = Defaults.AUTO_CANCEL;
         mSoundUri = Defaults.SOUND_DEFAULT;
+        mAccentColor = Defaults.NOTIFICATION_COLOR;
     }
 
     /**
@@ -147,6 +155,10 @@ public class SimpleNotificationDelegate implements PushDelegate {
             mBuilder.setLargeIcon(bitmap);
         }
 
+        if (mAccentColor != 0) {
+            mBuilder.setColorized(true).setColor(mAccentColor);
+        }
+
         mNotificationManager.notify(currentTimeStamp, mBuilder.build());
     }
 
@@ -188,7 +200,7 @@ public class SimpleNotificationDelegate implements PushDelegate {
      * Sets the drawable resource ID for the small icon.
      * @param smallIconDrawableResId The drawable resource ID for the small icon.
      */
-    public void setSmallIconDrawableResId(int smallIconDrawableResId) {
+    public void setSmallIconDrawableResId(@DrawableRes int smallIconDrawableResId) {
         this.mSmallIconDrawableResId = smallIconDrawableResId;
     }
 
@@ -196,7 +208,7 @@ public class SimpleNotificationDelegate implements PushDelegate {
      * Sets the drawable resource ID for the large icon.
      * @param largeIconDrawableResId The drawable resource ID for the large icon.
      */
-    public void setLargeIconDrawableResId(int largeIconDrawableResId) {
+    public void setLargeIconDrawableResId(@DrawableRes int largeIconDrawableResId) {
         this.mLargeIconDrawableResId = largeIconDrawableResId;
     }
 
@@ -241,7 +253,7 @@ public class SimpleNotificationDelegate implements PushDelegate {
      * Sets the light color
      * @param lightColor The light color.
      */
-    public void setLightColor(int lightColor) {
+    public void setLightColor(@ColorInt int lightColor) {
         this.mLightColor = lightColor;
     }
 
@@ -262,6 +274,14 @@ public class SimpleNotificationDelegate implements PushDelegate {
     }
 
     /**
+     * Sets the accent color.
+     * @param accentColor The accent color.
+     */
+    public void setAccentColor(@ColorInt int accentColor) {
+        this.mAccentColor = accentColor;
+    }
+
+    /**
      * Class default values.
      */
     private static class Defaults {
@@ -271,6 +291,7 @@ public class SimpleNotificationDelegate implements PushDelegate {
         private static final int[] LIGHTS_PATTERN = {800, 200};
         private static int LIGHT_COLOR = Color.WHITE;
         private static boolean AUTO_CANCEL = true;
+        private static int NOTIFICATION_COLOR = 0;
         private static Uri SOUND_DEFAULT = Settings.System.DEFAULT_NOTIFICATION_URI;
 
         private static int getDefaultIconResId(Context context) {
