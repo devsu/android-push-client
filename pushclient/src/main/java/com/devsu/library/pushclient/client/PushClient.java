@@ -90,6 +90,11 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
     private Provider mProvider;
 
     /**
+     * Name of the Push Preferences for this instance.
+     */
+    private String mPushPreferencesName;
+
+    /**
      * Private constructor. Selects FCM as default provider.
      */
     private PushClient() {
@@ -194,6 +199,7 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
         sInstance.mInitCallback = initCallback;
         sInstance.mPushDelegate = delegate;
         sInstance.mProvider = provider;
+        sInstance.mPushPreferencesName = TAG + "_" + sInstance.mContext.getPackageName();
         sInstance.enableProviderServices();
         sInstance.startRegistrationIntentServiceIfNeeded();
     }
@@ -449,7 +455,7 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
      * @return The SharedPreferences used for Push Settings.
      */
     private SharedPreferences getPushPreferences() {
-        return mContext.getSharedPreferences(TAG, Context.MODE_PRIVATE);
+        return mContext.getSharedPreferences(mPushPreferencesName, Context.MODE_PRIVATE);
     }
 
     /**
@@ -499,6 +505,14 @@ public final class PushClient implements RegistrationResultReceiver.Receiver {
      */
     public static PushDelegate getDelegate() {
         return sInstance.mPushDelegate;
+    }
+
+    /**
+     * Gets the registration ID for this instance.
+     * @return The registration ID for this instance.
+     */
+    public static String getRegistrationId() {
+        return sInstance.mRegistrationId;
     }
 
     /**
