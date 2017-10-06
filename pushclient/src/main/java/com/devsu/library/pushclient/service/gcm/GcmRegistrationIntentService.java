@@ -48,7 +48,7 @@ public class GcmRegistrationIntentService extends IntentService {
         Bundle bundle = new Bundle();
         bundle.putString(PrefsConstants.SERVICE_ORIGIN, TAG);
         try {
-            String gcmId = intent.getStringExtra(PrefsConstants.PREF_GCM_ID);
+            String gcmId = intent.getStringExtra(PrefsConstants.PREF_SENDER_ID);
             InstanceID instanceID = InstanceID.getInstance(this);
             String regId = instanceID.getToken(gcmId, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
             if (TextUtils.isEmpty(regId)) {
