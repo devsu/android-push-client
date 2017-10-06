@@ -5,7 +5,7 @@
 
     <service
       android:exported="false"
-      android:name=".service.fcm.FcmPushListenerService">
+      android:name=".service.FcmPushListenerService">
       <intent-filter>
         <action android:name="com.google.firebase.MESSAGING_EVENT" />
       </intent-filter>
@@ -13,7 +13,7 @@
 
     <service
       android:exported="false"
-      android:name=".service.fcm.FcmIdListenerService">
+      android:name=".service.FcmIdListenerService">
       <intent-filter>
         <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
       </intent-filter>
@@ -21,11 +21,11 @@
 
     <service
       android:exported="false"
-      android:name=".service.fcm.FcmRegistrationIntentService"/>
+      android:name=".service.FcmRegistrationIntentService"/>
 
     <service
       android:exported="false"
-      android:name=".service.fcm.FcmUnregistrationIntentService"/>
+      android:name=".service.FcmUnregistrationIntentService"/>
 
   </application>
 

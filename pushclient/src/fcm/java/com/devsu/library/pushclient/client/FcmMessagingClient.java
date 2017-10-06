@@ -3,10 +3,10 @@ package com.devsu.library.pushclient.client;
 import android.app.IntentService;
 import android.os.AsyncTask;
 import android.util.Log;
-import com.devsu.library.pushclient.service.fcm.FcmRegistrationIntentService;
-import com.devsu.library.pushclient.service.fcm.FcmUnregistrationIntentService;
 import com.google.firebase.iid.FirebaseInstanceId;
 import java.io.IOException;
+import com.devsu.library.pushclient.service.FcmRegistrationIntentService;
+import com.devsu.library.pushclient.service.FcmUnregistrationIntentService;
 
 class FcmMessagingClient extends CloudMessagingClient {
 

@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import com.devsu.library.pushclient.client.PushClient;
+import com.devsu.library.pushclient.client.FcmPushClient;
 import com.devsu.pushclient.fcm.R;
 
 public class MainActivity extends AppCompatActivity {
@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         unregisterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PushClient.unregister();
+                FcmPushClient.unregister();
             }
         });
 
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         registrationIdButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String registrationId = PushClient.getRegistrationId();
+                String registrationId = FcmPushClient.getRegistrationId();
                 if (TextUtils.isEmpty(registrationId)) {
                     registrationIdText.setText("Not registered to FCM. Please try again.");
                     return;

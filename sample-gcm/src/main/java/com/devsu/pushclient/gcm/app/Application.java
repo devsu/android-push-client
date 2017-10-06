@@ -1,13 +1,12 @@
 package com.devsu.pushclient.gcm.app;
 
-import com.devsu.library.pushclient.client.PushClient;
-import com.devsu.library.pushclient.service.Provider;
+import com.devsu.library.pushclient.client.GcmPushClient;
 
 public class Application extends android.app.Application {
 
   @Override
   public void onCreate() {
     super.onCreate();
-    PushClient.with(this, Provider.GCM, "428325093643").initialize();
+    GcmPushClient.with(this, "428325093643").initialize();
   }
 }

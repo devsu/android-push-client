@@ -1,6 +1,6 @@
-package com.devsu.library.pushclient.service.fcm;
+package com.devsu.library.pushclient.service;
 
-import com.devsu.library.pushclient.client.PushClient;
+import com.devsu.library.pushclient.client.FcmPushClient;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -16,8 +16,8 @@ public class FcmPushListenerService extends FirebaseMessagingService {
      */
     @Override
     public void onMessageReceived(RemoteMessage message) {
-        if (PushClient.getSenderId().contentEquals(message.getFrom())) {
-            PushClient.getDelegate().handleNotification(this, message.getData());
+        if (FcmPushClient.getSenderId().contentEquals(message.getFrom())) {
+            FcmPushClient.getDelegate().handleNotification(this, message.getData());
         }
     }
 }

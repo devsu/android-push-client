@@ -1,4 +1,4 @@
-package com.devsu.library.pushclient.service.fcm;
+package com.devsu.library.pushclient.service;
 
 import android.app.Activity;
 import android.app.IntentService;
@@ -6,9 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
-import com.devsu.library.pushclient.client.PushClient;
+import com.devsu.library.pushclient.client.FcmPushClient;
 import com.devsu.library.pushclient.constants.BundleConstants;
-import com.devsu.library.pushclient.service.RegistrationResultReceiver;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 /**
@@ -36,7 +35,7 @@ public class FcmRegistrationIntentService extends IntentService {
     public void onHandleIntent(Intent intent) {
         ResultReceiver receiver = intent.getParcelableExtra(RegistrationResultReceiver.TAG);
         if (receiver == null) {
-            receiver = PushClient.getReceiver();
+            receiver = FcmPushClient.getReceiver();
         }
         Bundle bundle = new Bundle();
         bundle.putString(BundleConstants.BUNDLE_SERVICE_ORIGIN, TAG);

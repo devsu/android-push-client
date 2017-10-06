@@ -1,20 +1,19 @@
-package com.devsu.library.pushclient.service.gcm;
+package com.devsu.library.pushclient.service;
 
 import android.content.Intent;
-
-import com.google.android.gms.iid.InstanceIDListenerService;
+import com.google.firebase.iid.FirebaseInstanceIdService;
 
 /**
  * The Listener Service for Registration ID's refresh.
  */
-public class GcmIdListenerService extends InstanceIDListenerService {
+public class FcmIdListenerService extends FirebaseInstanceIdService {
 
     /**
      * Starts the Registration Service when the Registration ID has to be refreshed.
      */
     @Override
     public void onTokenRefresh() {
-        Intent intent = new Intent(this, GcmRegistrationIntentService.class);
+        Intent intent = new Intent(this, FcmRegistrationIntentService.class);
         startService(intent);
     }
 }

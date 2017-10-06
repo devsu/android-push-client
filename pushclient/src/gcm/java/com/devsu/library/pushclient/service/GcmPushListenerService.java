@@ -1,7 +1,7 @@
-package com.devsu.library.pushclient.service.gcm;
+package com.devsu.library.pushclient.service;
 
 import android.os.Bundle;
-import com.devsu.library.pushclient.client.PushClient;
+import com.devsu.library.pushclient.client.GcmPushClient;
 import com.google.android.gms.gcm.GcmListenerService;
 
 /**
@@ -16,8 +16,8 @@ public class GcmPushListenerService extends GcmListenerService {
      */
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        if (PushClient.getSenderId().contentEquals(from)) {
-            PushClient.getDelegate().handleNotification(this, data);
+        if (GcmPushClient.getSenderId().contentEquals(from)) {
+            GcmPushClient.getDelegate().handleNotification(this, data);
         }
     }
 }

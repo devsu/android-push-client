@@ -1,4 +1,4 @@
-package com.devsu.library.pushclient.service.gcm;
+package com.devsu.library.pushclient.service;
 
 import android.app.Activity;
 import android.app.IntentService;
@@ -7,10 +7,8 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
-import com.devsu.library.pushclient.client.PushClient;
+import com.devsu.library.pushclient.client.GcmPushClient;
 import com.devsu.library.pushclient.constants.BundleConstants;
-import com.devsu.library.pushclient.service.Provider;
-import com.devsu.library.pushclient.service.RegistrationResultReceiver;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import java.io.IOException;
@@ -40,7 +38,7 @@ public class GcmRegistrationIntentService extends IntentService {
     public void onHandleIntent(Intent intent) {
         ResultReceiver receiver = intent.getParcelableExtra(RegistrationResultReceiver.TAG);
         if (receiver == null) {
-            receiver = PushClient.getReceiver();
+            receiver = GcmPushClient.getReceiver();
         }
         Bundle bundle = new Bundle();
         bundle.putString(BundleConstants.BUNDLE_SERVICE_ORIGIN, TAG);

@@ -4,8 +4,8 @@ import android.app.IntentService;
 import android.content.Intent;
 import com.devsu.library.pushclient.constants.BundleConstants;
 import com.devsu.library.pushclient.service.RegistrationResultReceiver;
-import com.devsu.library.pushclient.service.gcm.GcmRegistrationIntentService;
-import com.devsu.library.pushclient.service.gcm.GcmUnregistrationIntentService;
+import com.devsu.library.pushclient.service.GcmRegistrationIntentService;
+import com.devsu.library.pushclient.service.GcmUnregistrationIntentService;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 

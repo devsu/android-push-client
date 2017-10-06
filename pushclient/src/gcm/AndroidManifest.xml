@@ -19,7 +19,7 @@
 
     <service
       android:exported="false"
-      android:name=".service.gcm.GcmPushListenerService">
+      android:name=".service.GcmPushListenerService">
       <intent-filter>
         <action android:name="com.google.android.c2dm.intent.RECEIVE" />
       </intent-filter>
@@ -27,7 +27,7 @@
 
     <service
       android:exported="false"
-      android:name=".service.gcm.GcmIdListenerService">
+      android:name=".service.GcmIdListenerService">
       <intent-filter>
         <action android:name="com.google.android.gms.iid.InstanceID" />
       </intent-filter>
@@ -35,11 +35,11 @@
 
     <service
       android:exported="false"
-      android:name=".service.gcm.GcmRegistrationIntentService"/>
+      android:name=".service.GcmRegistrationIntentService"/>
 
     <service
       android:exported="false"
-      android:name=".service.gcm.GcmUnregistrationIntentService"/>
+      android:name=".service.GcmUnregistrationIntentService"/>
 
   </application>
 
