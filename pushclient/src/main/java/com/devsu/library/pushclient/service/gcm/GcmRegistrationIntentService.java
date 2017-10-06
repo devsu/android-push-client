@@ -8,7 +8,7 @@ import android.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
 import com.devsu.library.pushclient.client.PushClient;
-import com.devsu.library.pushclient.prefs.PrefsConstants;
+import com.devsu.library.pushclient.constants.BundleConstants;
 import com.devsu.library.pushclient.service.Provider;
 import com.devsu.library.pushclient.service.RegistrationResultReceiver;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -38,27 +38,24 @@ public class GcmRegistrationIntentService extends IntentService {
      */
     @Override
     public void onHandleIntent(Intent intent) {
-        if (PushClient.getProvider() != Provider.GCM) {
-            return;
-        }
         ResultReceiver receiver = intent.getParcelableExtra(RegistrationResultReceiver.TAG);
         if (receiver == null) {
             receiver = PushClient.getReceiver();
         }
         Bundle bundle = new Bundle();
-        bundle.putString(PrefsConstants.SERVICE_ORIGIN, TAG);
+        bundle.putString(BundleConstants.BUNDLE_SERVICE_ORIGIN, TAG);
         try {
-            String gcmId = intent.getStringExtra(PrefsConstants.PREF_SENDER_ID);
+            String gcmId = intent.getStringExtra(BundleConstants.BUNDLE_SENDER_ID);
             InstanceID instanceID = InstanceID.getInstance(this);
             String regId = instanceID.getToken(gcmId, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
             if (TextUtils.isEmpty(regId)) {
                 receiver.send(Activity.RESULT_FIRST_USER, null);
                 return;
             }
-            bundle.putString(PrefsConstants.PREF_REG_ID, regId);
+            bundle.putString(BundleConstants.BUNDLE_REGISTRATION_ID, regId);
             receiver.send(Activity.RESULT_OK, bundle);
         } catch (IOException e) {
-            bundle.putSerializable(PrefsConstants.REGISTRATION_EXCEPTION, e);
+            bundle.putSerializable(BundleConstants.BUNDLE_REGISTRATION_EXCEPTION, e);
             Log.e(TAG, "Error occurred when using RegistrationIntentService", e);
             if (receiver != null) {
                 receiver.send(Activity.RESULT_CANCELED, bundle);

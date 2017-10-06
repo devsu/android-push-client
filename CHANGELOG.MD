@@ -15,10 +15,13 @@ First release of the GCM Push Client.
 
 + Added FCM support.
 
-## [1.1.2](https://github.com/devsu/gcm-push-client/releases/tag/1.1.2) (2017-10-05)
+## [2.0.0](https://github.com/devsu/gcm-push-client/releases/tag/2.0.0) (2017-10-05)
 
 + Fixed a seemingly random NullPointerException.
 + Updated dependencies.
 + Added getRegistrationId method.
 + Added color as a delegate property.
 + Added a sample for FCM and a sample for GCM.
++ Separated AndroidManifests for FCM and GCM, no longer registering services on runtime.
++ Fixed a FCM bug where on first install we would get a double registration event happening.
++ Separated FCM and GCM as classifiers for the dependency.

@@ -2,22 +2,19 @@ package com.devsu.library.pushclient.client;
 
 import android.app.Activity;
 import android.app.IntentService;
-import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
 import android.util.Log;
+import com.devsu.library.pushclient.constants.BundleConstants;
 import com.devsu.library.pushclient.delegate.PushDelegate;
 import com.devsu.library.pushclient.exception.InvalidSenderIdException;
 import com.devsu.library.pushclient.exception.PlayServicesNotFoundException;
 import com.devsu.library.pushclient.exception.PushClientException;
-import com.devsu.library.pushclient.prefs.PrefsConstants;
 import com.devsu.library.pushclient.service.RegistrationResultReceiver;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -78,30 +75,14 @@ abstract class CloudMessagingClient implements RegistrationResultReceiver.Receiv
    * Start provider services
    */
   void start() {
-    mPushPreferencesName = mContext.getPackageName() + "_" + this.getClass().getSimpleName();
-    mTag = this.getClass().getSimpleName();
-    enableProviderServices();
-    startRegistrationIntentService();
-  }
-
-  /**
-   * Returns the services associated with the provider.
-   *
-   * @return The services associated with the provider.
-   */
-  abstract Class<? extends Service>[] getProviderServices();
-
-  /**
-   * Enables services according to the provider.
-   */
-  private void enableProviderServices() {
-    Class<? extends Service>[] services = getProviderServices();
-    PackageManager pm = mContext.getPackageManager();
-    for (Class<?> service : services) {
-      ComponentName component = new ComponentName(mContext, service);
-      pm.setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-          PackageManager.DONT_KILL_APP);
-    }
+    AsyncTask.execute(new Runnable() {
+      @Override
+      public void run() {
+        mPushPreferencesName = mContext.getPackageName() + "_" + this.getClass().getSimpleName();
+        mTag = this.getClass().getSimpleName();
+        startRegistrationIntentService();
+      }
+    });
   }
 
   /**
@@ -136,8 +117,8 @@ abstract class CloudMessagingClient implements RegistrationResultReceiver.Receiv
     if (resultData == null) {
       return;
     }
-    String origin = resultData.getString(PrefsConstants.SERVICE_ORIGIN);
-    if (origin == null) {
+    String origin = resultData.getString(BundleConstants.BUNDLE_SERVICE_ORIGIN);
+    if (TextUtils.isEmpty(origin)) {
       return;
     }
     if (origin.equals(getRegistrationIntentService().getSimpleName())) {
@@ -165,14 +146,16 @@ abstract class CloudMessagingClient implements RegistrationResultReceiver.Receiv
       return;
     }
     if (resultCode == Activity.RESULT_OK) {
-      mRegistrationId = resultData.getString(PrefsConstants.PREF_REG_ID);
-      storeRegistrationId(mRegistrationId);
-      doOnCallbackSuccess(true);
+      String registrationId = resultData.getString(BundleConstants.BUNDLE_REGISTRATION_ID);
+      if (TextUtils.isEmpty(registrationId) || !registrationId.equals(mRegistrationId)) {
+        mRegistrationId = resultData.getString(BundleConstants.BUNDLE_REGISTRATION_ID);
+        doOnCallbackSuccess(true);
+      }
       return;
     }
     if (resultCode == Activity.RESULT_CANCELED) {
       IOException e = (IOException) resultData
-          .getSerializable(PrefsConstants.REGISTRATION_EXCEPTION);
+          .getSerializable(BundleConstants.BUNDLE_REGISTRATION_EXCEPTION);
       if (e == null) {
         return;
       }
@@ -194,13 +177,12 @@ abstract class CloudMessagingClient implements RegistrationResultReceiver.Receiv
   private void onReceiveUnregistrationResult(int resultCode, Bundle resultData) {
     if (mReceiver != null && resultCode == Activity.RESULT_OK) {
       mRegistrationId = null;
-      getPushPreferences().edit().clear().apply();
       Log.d(mTag, "Unregistration successful.");
       return;
     }
     if (mReceiver != null && resultCode == Activity.RESULT_CANCELED) {
       IOException e = (IOException) resultData
-          .getSerializable(PrefsConstants.REGISTRATION_EXCEPTION);
+          .getSerializable(BundleConstants.BUNDLE_REGISTRATION_EXCEPTION);
       if (e == null) {
         return;
       }
@@ -220,12 +202,10 @@ abstract class CloudMessagingClient implements RegistrationResultReceiver.Receiv
     final InitCallback callback = mInitCallback;
     Handler handler = new Handler(mContext.getMainLooper());
     handler.post(new Runnable() {
-
       @Override
       public void run() {
         callback.onError(e);
       }
-
     });
   }
 
@@ -241,7 +221,6 @@ abstract class CloudMessagingClient implements RegistrationResultReceiver.Receiv
     final InitCallback callback = mInitCallback;
     Handler handler = new Handler(mContext.getMainLooper());
     handler.post(new Runnable() {
-
       @Override
       public void run() {
         callback.onSuccess(mRegistrationId, hasBeenUpdated);
@@ -257,48 +236,7 @@ abstract class CloudMessagingClient implements RegistrationResultReceiver.Receiv
         == ConnectionResult.SUCCESS;
   }
 
-  /**
-   * Checks the app's version code.
-   *
-   * @return The app's version code.
-   */
-  private int getAppVersion() {
-    try {
-      return mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0).versionCode;
-    } catch (Exception e) {
-      return -1;
-    }
-  }
-
-  /**
-   * Stores the registration ID on Shared Preferences.
-   *
-   * @param registrationId The Registration ID to be stored.
-   */
-  private void storeRegistrationId(String registrationId) {
-    SharedPreferences.Editor editor = getPushPreferences().edit();
-    editor.putInt(PrefsConstants.PREF_APP_VERSION, getAppVersion());
-    editor.putString(PrefsConstants.PREF_REG_ID, registrationId);
-    editor.putString(PrefsConstants.PREF_SENDER_ID, mSenderId);
-    editor.apply();
-  }
-
-  /**
-   * Loads the registration ID from the Shared Preferences.
-   *
-   * @return the registration ID.
-   */
-  private String loadRegistrationId() {
-    SharedPreferences prefs = getPushPreferences();
-    String registrationId = prefs.getString(PrefsConstants.PREF_REG_ID, null);
-    int registeredVersion = prefs.getInt(PrefsConstants.PREF_APP_VERSION, -1);
-    String senderId = prefs.getString(PrefsConstants.PREF_SENDER_ID, null);
-    if (TextUtils.isEmpty(registrationId) || registeredVersion != getAppVersion()
-        || senderId != null && !senderId.equals(mSenderId)) {
-      return null;
-    }
-    return registrationId;
-  }
+  abstract String loadRegistrationId();
 
   /**
    * Unregisters this device from the provider.
@@ -332,15 +270,6 @@ abstract class CloudMessagingClient implements RegistrationResultReceiver.Receiv
   private void resetReceiver() {
     mReceiver = new RegistrationResultReceiver(new Handler());
     ((RegistrationResultReceiver) mReceiver).setReceiver(this);
-  }
-
-  /**
-   * Retrieves the SharedPreferences used for Push Settings.
-   *
-   * @return The SharedPreferences used for Push Settings.
-   */
-  private SharedPreferences getPushPreferences() {
-    return mContext.getSharedPreferences(mPushPreferencesName, Context.MODE_PRIVATE);
   }
 
   /**

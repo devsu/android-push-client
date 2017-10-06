@@ -6,10 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.text.TextUtils;
-
 import com.devsu.library.pushclient.client.PushClient;
-import com.devsu.library.pushclient.prefs.PrefsConstants;
-import com.devsu.library.pushclient.service.Provider;
+import com.devsu.library.pushclient.constants.BundleConstants;
 import com.devsu.library.pushclient.service.RegistrationResultReceiver;
 import com.google.firebase.iid.FirebaseInstanceId;
 
@@ -36,21 +34,18 @@ public class FcmRegistrationIntentService extends IntentService {
      */
     @Override
     public void onHandleIntent(Intent intent) {
-        if (PushClient.getProvider() != Provider.FCM) {
-            return;
-        }
         ResultReceiver receiver = intent.getParcelableExtra(RegistrationResultReceiver.TAG);
         if (receiver == null) {
             receiver = PushClient.getReceiver();
         }
         Bundle bundle = new Bundle();
-        bundle.putString(PrefsConstants.SERVICE_ORIGIN, TAG);
+        bundle.putString(BundleConstants.BUNDLE_SERVICE_ORIGIN, TAG);
         String regId = FirebaseInstanceId.getInstance().getToken();
         if (TextUtils.isEmpty(regId)) {
             receiver.send(Activity.RESULT_FIRST_USER, bundle);
             return;
         }
-        bundle.putString(PrefsConstants.PREF_REG_ID, regId);
+        bundle.putString(BundleConstants.BUNDLE_REGISTRATION_ID, regId);
         receiver.send(Activity.RESULT_OK, bundle);
     }
 }

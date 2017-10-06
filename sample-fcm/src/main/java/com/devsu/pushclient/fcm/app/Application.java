@@ -8,6 +8,6 @@ public class Application extends android.app.Application {
   @Override
   public void onCreate() {
     super.onCreate();
-    PushClient.initialize(this, Provider.FCM, "1015075478581");
+    PushClient.with(this, Provider.FCM, "1015075478581").initialize();
   }
 }

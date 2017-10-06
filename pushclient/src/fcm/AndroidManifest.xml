@@ -1,0 +1,32 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  package="com.devsu.library.pushclient">
+
+  <application>
+
+    <service
+      android:exported="false"
+      android:name=".service.fcm.FcmPushListenerService">
+      <intent-filter>
+        <action android:name="com.google.firebase.MESSAGING_EVENT" />
+      </intent-filter>
+    </service>
+
+    <service
+      android:exported="false"
+      android:name=".service.fcm.FcmIdListenerService">
+      <intent-filter>
+        <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+      </intent-filter>
+    </service>
+
+    <service
+      android:exported="false"
+      android:name=".service.fcm.FcmRegistrationIntentService"/>
+
+    <service
+      android:exported="false"
+      android:name=".service.fcm.FcmUnregistrationIntentService"/>
+
+  </application>
+
+</manifest>

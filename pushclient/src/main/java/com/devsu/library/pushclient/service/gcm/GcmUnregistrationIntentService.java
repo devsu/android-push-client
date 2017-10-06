@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.util.Log;
 import com.devsu.library.pushclient.client.PushClient;
-import com.devsu.library.pushclient.prefs.PrefsConstants;
+import com.devsu.library.pushclient.constants.BundleConstants;
 import com.devsu.library.pushclient.service.Provider;
 import com.devsu.library.pushclient.service.RegistrationResultReceiver;
 import com.google.android.gms.iid.InstanceID;
@@ -36,18 +36,18 @@ public class GcmUnregistrationIntentService extends IntentService {
      */
     @Override
     public void onHandleIntent(Intent intent) {
-        if (PushClient.getProvider() != Provider.GCM) {
-            return;
-        }
         ResultReceiver receiver = intent.getParcelableExtra(RegistrationResultReceiver.TAG);
+        if (receiver == null) {
+            receiver = PushClient.getReceiver();
+        }
         Bundle bundle = new Bundle();
-        bundle.putString(PrefsConstants.SERVICE_ORIGIN, TAG);
+        bundle.putString(BundleConstants.BUNDLE_SERVICE_ORIGIN, TAG);
         try {
             InstanceID instanceID = InstanceID.getInstance(this);
             instanceID.deleteInstanceID();
             receiver.send(Activity.RESULT_OK, bundle);
         } catch (IOException e) {
-            bundle.putSerializable(PrefsConstants.REGISTRATION_EXCEPTION, e);
+            bundle.putSerializable(BundleConstants.BUNDLE_REGISTRATION_EXCEPTION, e);
             Log.e(TAG, "Error occurred when using UnregistrationIntentService", e);
             if (receiver != null) {
                 receiver.send(Activity.RESULT_CANCELED, bundle);

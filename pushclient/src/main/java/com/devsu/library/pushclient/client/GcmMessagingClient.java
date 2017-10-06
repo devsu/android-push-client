@@ -1,37 +1,18 @@
 package com.devsu.library.pushclient.client;
 
 import android.app.IntentService;
-import android.app.Service;
 import android.content.Intent;
-import com.devsu.library.pushclient.prefs.PrefsConstants;
+import com.devsu.library.pushclient.constants.BundleConstants;
 import com.devsu.library.pushclient.service.RegistrationResultReceiver;
-import com.devsu.library.pushclient.service.gcm.GcmIdListenerService;
-import com.devsu.library.pushclient.service.gcm.GcmPushListenerService;
 import com.devsu.library.pushclient.service.gcm.GcmRegistrationIntentService;
 import com.devsu.library.pushclient.service.gcm.GcmUnregistrationIntentService;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
 
 class GcmMessagingClient extends CloudMessagingClient {
 
-  /**
-   * Log TAG.
-   */
-  private static final String TAG = GcmMessagingClient.class.getSimpleName();
-
   GcmMessagingClient() {
     super();
-  }
-
-  /**
-   * Returns GCM Services
-   *
-   * @return the GCM Services
-   */
-  @Override
-  @SuppressWarnings("unchecked")
-  Class<? extends Service>[] getProviderServices() {
-    Class<?>[] services = {GcmIdListenerService.class, GcmPushListenerService.class,
-        GcmRegistrationIntentService.class, GcmUnregistrationIntentService.class};
-    return (Class<? extends Service>[]) services;
   }
 
   /**
@@ -41,7 +22,7 @@ class GcmMessagingClient extends CloudMessagingClient {
   void postStartRegistrationIntentService() {
     Intent intent = new Intent(mContext, GcmRegistrationIntentService.class);
     intent.putExtra(RegistrationResultReceiver.TAG, mReceiver);
-    intent.putExtra(PrefsConstants.PREF_SENDER_ID, mSenderId);
+    intent.putExtra(BundleConstants.BUNDLE_SENDER_ID, mSenderId);
     mContext.startService(intent);
   }
 
@@ -63,5 +44,20 @@ class GcmMessagingClient extends CloudMessagingClient {
   @Override
   Class<? extends IntentService> getUnregistrationIntentService() {
     return GcmUnregistrationIntentService.class;
+  }
+
+  /**
+   * Loads GCM registration ID if it exists.
+   *
+   * @return the registration id.
+   */
+  @Override
+  String loadRegistrationId() {
+    try {
+      InstanceID instanceId = InstanceID.getInstance(mContext);
+      return instanceId.getToken(mSenderId, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
+    } catch (Exception e) {
+      return null;
+    }
   }
 }

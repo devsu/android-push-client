@@ -1,10 +1,7 @@
 package com.devsu.library.pushclient.service.gcm;
 
 import android.os.Bundle;
-
 import com.devsu.library.pushclient.client.PushClient;
-import com.devsu.library.pushclient.exception.PushClientException;
-import com.devsu.library.pushclient.service.Provider;
 import com.google.android.gms.gcm.GcmListenerService;
 
 /**
@@ -19,10 +16,7 @@ public class GcmPushListenerService extends GcmListenerService {
      */
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        if (PushClient.getProvider() == null) {
-            throw new RuntimeException(new PushClientException(TAG + " error. Provider cannot be null."));
-        }
-        if (PushClient.getGcmId().contentEquals(from) && PushClient.getProvider() == Provider.GCM) {
+        if (PushClient.getSenderId().contentEquals(from)) {
             PushClient.getDelegate().handleNotification(this, data);
         }
     }
