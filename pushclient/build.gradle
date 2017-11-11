@@ -1,37 +1,62 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.1"
+  compileSdkVersion 26
+  buildToolsVersion "26.0.1"
 
-    defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 26
-        versionCode 3
-        versionName "1.1.2"
+  defaultConfig {
+    minSdkVersion 14
+    targetSdkVersion 26
+    versionCode 4
+    versionName "2.0.0"
+  }
+
+  productFlavors {
+    fcm {}
+    gcm {}
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
+  }
 
-    productFlavors {
-        fcm { }
-        gcm { }
-    }
+  publishNonDefault true
+  defaultPublishConfig 'fcmRelease'
 
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+  if (android.productFlavors.size() > 0) {
+    android.libraryVariants.all { variant ->
+
+      variant.outputs.each { output ->
+        def outputFile = output.outputFile
+        if (outputFile != null && outputFile.name.endsWith('.aar')) {
+          def fileName = "${archivesBaseName}-${version}.testsichu.aar"
+          output.outputFile = new File(outputFile.parent, fileName)
         }
+      }
+      // Publish a main artifact, otherwise the maven pom is not generated
+      if (android.publishNonDefault && variant.name == android.defaultPublishConfig) {
+        def bundleTask = tasks["bundle${name.capitalize()}"]
+        println name.capitalize()
+        artifacts {
+          archives(bundleTask.archivePath) {
+            classifier null
+            builtBy bundleTask
+          }
+        }
+      }
     }
-
-    publishNonDefault true
+  }
 }
 
 apply from: './publish.gradle'
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:26.0.2'
-    compile 'com.google.android.gms:play-services-gcm:11.4.2'
-    fcmCompile 'com.google.firebase:firebase-messaging:11.4.2'
+  compile fileTree(dir: 'libs', include: ['*.jar'])
+  testCompile 'junit:junit:4.12'
+  compile 'com.android.support:appcompat-v7:26.0.2'
+  compile 'com.google.android.gms:play-services-gcm:11.4.2'
+  fcmCompile 'com.google.firebase:firebase-messaging:11.4.2'
 }

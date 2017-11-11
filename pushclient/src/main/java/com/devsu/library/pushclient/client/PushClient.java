@@ -3,8 +3,6 @@ package com.devsu.library.pushclient.client;
 import android.os.ResultReceiver;
 import com.devsu.library.pushclient.delegate.PushDelegate;
 import com.devsu.library.pushclient.exception.PushClientException;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.GoogleApiActivity;
 
 /**
  * PushClient's main class.

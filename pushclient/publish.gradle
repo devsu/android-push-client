@@ -38,12 +38,10 @@ install {
       groupId publishedGroupId
       artifactId artifact
 
-      // Add your description here
       name libraryName
       description libraryDescription
       url siteUrl
 
-      // Set your license
       licenses {
         license {
           name licenseName
@@ -110,7 +108,7 @@ bintray {
     websiteUrl = siteUrl
     vcsUrl = gitUrl
     licenses = allLicenses
-    publish = true
+    publish = false
     publicDownloadNumbers = true
     version {
       desc = libraryDescription
