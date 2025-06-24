@@ -1,4 +1,4 @@
-# GCM Push Client #
+# GCM Push Client [DEPRECATED]
 
 GCM Push Client is an Android library that allows receiving Push Messages, without dealing with the hassle of making your Receiver, GCM Registration Service and all of that fun stuff.
 
